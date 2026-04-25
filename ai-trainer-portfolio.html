@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Trainer Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #080c14;
+    --bg2: #0d1220;
+    --card: #111827;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #7b61ff;
+    --accent3: #00ff9d;
+    --text: #e2eaf6;
+    --muted: #6b7fa3;
+    --glow: 0 0 24px rgba(0,229,255,0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCANLINE OVERLAY */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+    position: relative;
+  }
+
+  .tag-line {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -1px;
+    margin-bottom: 18px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.2s;
+  }
+
+  h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 560px;
+    line-height: 1.9;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.35s;
+  }
+
+  .status-bar {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.5s;
+  }
+
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+  }
+
+  .status-pill .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent3);
+    box-shadow: 0 0 8px var(--accent3);
+    animation: pulse 2s ease infinite;
+  }
+
+  /* ── SECTION ── */
+  section {
+    margin-bottom: 52px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+
+  section:nth-of-type(1) { animation-delay: 0.55s; }
+  section:nth-of-type(2) { animation-delay: 0.65s; }
+  section:nth-of-type(3) { animation-delay: 0.75s; }
+  section:nth-of-type(4) { animation-delay: 0.85s; }
+  section:nth-of-type(5) { animation-delay: 0.95s; }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    border-radius: 12px 0 0 12px;
+  }
+
+  .card:hover {
+    border-color: rgba(0,229,255,0.3);
+    box-shadow: var(--glow);
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 2;
+  }
+
+  /* ── SKILLS GRID ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .skill-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .skill-item:hover {
+    border-color: var(--accent2);
+    box-shadow: 0 0 16px rgba(123,97,255,0.2);
+  }
+
+  .skill-name {
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .skill-bar {
+    height: 3px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .skill-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    animation: growBar 1.2s ease forwards;
+    width: 0;
+  }
+
+  /* ── PLATFORM BADGES ── */
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .platform-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 12px;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .platform-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(123,97,255,0.05));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .platform-badge:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .platform-badge:hover::before { opacity: 1; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(123,97,255,0.08));
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+
+  .highlight-box p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 2.1;
+  }
+
+  .highlight-box strong {
+    color: var(--accent3);
+    font-weight: 400;
+  }
+
+  /* ── TOOLS ── */
+  .tools-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .tool-tag {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .tool-tag:hover {
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+
+  /* ── CTA ── */
+  .cta-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+  }
+
+  .cta-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .cta-text span { color: var(--accent); }
+
+  .cta-btn {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #080c14;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .cta-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  @keyframes growBar {
+    to { width: var(--w); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="tag-line">// Portfolio · AI Training & Annotation</div>
+    <h1>AI Trainer &<br/><span>Data Annotation</span><br/>Specialist</h1>
+    <p class="subtitle">Evaluating, refining, and improving AI-generated outputs — with a focus on accuracy, coherence, and alignment to project guidelines.</p>
+    <div class="status-bar">
+      <div class="status-pill"><span class="dot"></span> Available for Projects</div>
+      <div class="status-pill">Remote-Ready</div>
+      <div class="status-pill">NLP · QA · Ranking</div>
+    </div>
+  </header>
+
+  <!-- CORE CAPABILITIES -->
+  <section>
+    <div class="section-label">01 · Core Capabilities</div>
+    <div class="card">
+      <div class="card-title">AI Output Evaluation & Quality Assurance</div>
+      <p>Assessing AI-generated responses for accuracy, coherence, relevance, and alignment with project-specific guidelines. Identifying inconsistencies and providing structured feedback to improve model performance.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Natural Language Processing (NLP) Tasks</div>
+      <p>Hands-on experience with intent classification, response ranking, error analysis, and sentiment evaluation — ensuring outputs meet high linguistic and contextual standards.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Language Proficiency & Tone Analysis</div>
+      <p>Advanced English proficiency rooted in a background in language teaching. Expert in evaluating tone, context, user intent, and natural language flow to make AI outputs more human-friendly.</p>
+    </div>
+  </section>
+
+  <!-- SKILL LEVELS -->
+  <section>
+    <div class="section-label">02 · Skill Proficiency</div>
+    <div class="skills-grid">
+      <div class="skill-item">
+        <div class="skill-name">Data Annotation</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:95%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Content Evaluation</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:92%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">NLP Tasks</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:88%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Intent Classification</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:85%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Response Ranking</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:90%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Error Analysis</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:87%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">English Proficiency</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:98%"></div></div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">QA & Guidelines</div>
+        <div class="skill-bar"><div class="skill-fill" style="--w:93%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUE PROPOSITION -->
+  <section>
+    <div class="section-label">03 · What I Bring</div>
+    <div class="highlight-box">
+      <p>
+        My background in <strong>English language teaching</strong> gives me a unique edge — I can detect subtle issues in tone, grammar, and user intent that purely technical annotators may miss.<br/><br/>
+        I'm experienced working with <strong>structured annotation guidelines</strong>, adapting quickly to project-specific rubrics, and delivering consistent, high-quality assessments at scale.<br/><br/>
+        I am <strong>detail-oriented, deadline-driven, and remote-ready</strong>, with strong async communication skills and the digital literacy to thrive across multiple platforms simultaneously.
+      </p>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section>
+    <div class="section-label">04 · Target Platforms</div>
+    <div class="platforms">
+      <div class="platform-badge">Outlier</div>
+      <div class="platform-badge">Remotasks</div>
+      <div class="platform-badge">Appen</div>
+      <div class="platform-badge">Scale AI</div>
+      <div class="platform-badge">Clickworker</div>
+      <div class="platform-badge">DataAnnotation</div>
+    </div>
+  </section>
+
+  <!-- TOOLS -->
+  <section>
+    <div class="section-label">05 · Tools & Environment</div>
+    <div class="tools-row">
+      <div class="tool-tag">Google Docs</div>
+      <div class="tool-tag">Google Sheets</div>
+      <div class="tool-tag">Google Drive</div>
+      <div class="tool-tag">MS Word</div>
+      <div class="tool-tag">MS Excel</div>
+      <div class="tool-tag">Slack</div>
+      <div class="tool-tag">Zoom</div>
+      <div class="tool-tag">Trello</div>
+      <div class="tool-tag">Notion</div>
+      <div class="tool-tag">Remote Workflow</div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-bar">
+    <div class="cta-text">Ready to contribute to your <span>AI pipeline</span>.</div>
+    <button class="cta-btn" onclick="window.print()">Export Portfolio</button>
+  </div>
+
+</div>
+</body>
+</html>
